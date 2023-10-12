@@ -26,22 +26,8 @@ public class Player
     {
         Console.WriteLine("llego");
         Node nextNode = position.GetUp();
-        if (nextNode.GetValue().Contains("[ X ]") && nextNode.GetValue().Contains("[ Y ]"))
-        {
-            position.SetValue("[  ]");
-            position = position.GetUp().GetUp();
-            position.SetValue("[ " + symbol + " ]");
-            if (symbol == "X")
-            {
 
-                LinkedMatrix.UpdatePlayerXPosition(position);
-            }
-            else if (symbol == "Y")
-            {
-                LinkedMatrix.UpdatePlayerYPosition(position);
-            }
-        }
-        if (nextNode != null && !nextNode.IsBlocked )
+        if (nextNode != null && !nextNode.IsBlocked && !nextNode.GetValue().Contains("[ X ]") && !nextNode.GetValue().Contains("[ Y ]"))
         {
             Console.WriteLine("llego");
             position.SetValue("[  ]"); 
@@ -58,7 +44,7 @@ public class Player
                 LinkedMatrix.UpdatePlayerYPosition(position);
             }
         }
-        
+
         else
         {
             Console.WriteLine("No te puedes mover hacia arriba");
