@@ -8,7 +8,12 @@ using System.Threading.Tasks;
 public class LinkedMatrix
 {
     private static Node head;
-    public static void PrintMap()
+    public static Node PlayerXPosition;
+    public static Node PlayerYPosition;
+
+
+
+        public static void PrintMap()
     {
         Node currentRow = head;
         string matrix = "";
@@ -105,8 +110,9 @@ public class LinkedMatrix
                 break;
             }
         }
-
+        UpdatePlayerXPosition(initialPositionX);
         initialPositionX.SetValue("[ X ]");
+        
         return initialPositionX;
     }
 
@@ -134,7 +140,7 @@ public class LinkedMatrix
                 break;
             }
         }
-
+        UpdatePlayerYPosition(initialPositionY);
         initialPositionY.SetValue("[ Y ]");
         return initialPositionY;
     }
@@ -172,20 +178,116 @@ public class LinkedMatrix
         }
 
         // Verifica si la casilla ya está bloqueada o ocupada por un jugador
-        if (!currentNode.IsBlocked() && !currentNode.GetValue().Contains("[ X ]") && !currentNode.GetValue().Contains("[ Y ]"))
+        if (!currentNode.GetValue().Contains("[ X ]") && !currentNode.GetValue().Contains("[ Y ]"))
         {
             return currentNode;
         }
 
         return null; 
     }
+    //CAMBIOS------------------------------------------------------------------------------------------
+    public static void UpdatePlayerXPosition(Node newPosition)
+    {
+        Console.WriteLine("Se actualizo x");
+        PlayerXPosition = newPosition;
+    }
+
+    public static void UpdatePlayerYPosition(Node newPosition)
+    {
+        Console.WriteLine("Se actualizo y");
+        PlayerYPosition = newPosition;
+    }
+    public static bool BothPlayersHaveAvailablePaths()
+    {
+        return CanPlayerXWin() && CanPlayerYWin();
+    }
+    public static bool CanPlayerXWin()
+    {
+        // Encuentra el nodo inicial para Player X
+        Node initialNode = PlayerXPosition;
+
+        // Marca todos los nodos como no visitados
+        ResetVisitedStatus();
+
+        // Realiza una búsqueda en profundidad desde el nodo inicial
+        if (DFS(initialNode, Map.GetRows() - 1))
+        {
+            Console.WriteLine("SIIII x");
+            return true; // Player X puede ganar
+        }
+        Console.WriteLine("no x");
+        return false; // No hay una ruta ganadora para Player X
+    }
+
+    public static bool CanPlayerYWin()
+    {
+        // Encuentra el nodo inicial para Player Y
+        Node initialNode = PlayerYPosition;
+
+        // Marca todos los nodos como no visitados
+        ResetVisitedStatus();
+
+        // Realiza una búsqueda en profundidad desde el nodo inicial
+        if (DFS(initialNode, 0))
+        {
+            Console.WriteLine("SIIII Y");
+            return true; // Player Y puede ganar
+        }
+        Console.WriteLine("no Y");
+        return false; // No hay una ruta ganadora para Player Y
+    }
+
+    private static bool DFS(Node currentNode, int targetRow)
+    {
+        //CASO BASE
+        if (currentNode == null || currentNode.IsBlocked || currentNode.IsVisited)
+        {
+            return false; // Casilla bloqueada, visitada o nula, no es una ruta válida.
+        }
+
+        if (currentNode.GetUp() == null && targetRow == 0)
+        {
+            return true; // Jugador Y ha alcanzado la fila objetivo.
+        }
+
+        if (currentNode.GetDown() == null && targetRow == Map.GetRows() - 1)
+        {
+            return true; // Jugador X ha alcanzado la fila objetivo.
+        }
+
+        currentNode.IsVisited = true; // Marcar el nodo como visitado.
+
+        // Recursivamente intenta moverse en todas las direcciones posibles.
+        bool canWin = DFS(currentNode.GetUp(), targetRow) ||
+                      DFS(currentNode.GetDown(), targetRow) ||
+                      DFS(currentNode.GetLeft(), targetRow) ||
+                      DFS(currentNode.GetRight(), targetRow);
+
+        return canWin;
+    }
 
 
+
+    private static void ResetVisitedStatus()
+    {
+        Node currentRow = head;
+        for (int i = 0; i < Map.GetRows(); i++)
+        {
+            Node currentColumn = currentRow;
+            for (int j = 0; j < Map.GetColumns(); j++)
+            {
+                currentColumn.IsVisited = false;
+                currentColumn = currentColumn.GetRight();
+            }
+            currentRow = currentRow.GetDown();
+        }
+    }
     public static void InitializeGame() 
     {
-
-        Map.SetRows(4);
-        Map.SetColumns(4);
+        Console.WriteLine("Ingrese el tamaño del tablero:");
+        int n = int.Parse(Console.ReadLine());
+        Map.SetRows(n);
+        Map.SetColumns(n);
         CreateColumns();
     }
 

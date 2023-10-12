@@ -12,9 +12,11 @@ public class Node
     Node up;
     Node down;
     bool isBlocked;
+    bool isVisited;
 
 
-    public Node(string value ="[  ]")
+
+    public Node(string value = "[  ]")
     {
         this.value = value;
         this.left = null;
@@ -26,7 +28,11 @@ public class Node
 
     public string GetValue()
     {
-        return this.value;
+        if (IsBlocked)
+        {
+            return "[ # ]"; // Si la celda está bloqueada, mostrar [ # ]
+        }
+        return this.value; // De lo contrario, mostrar el valor actual
     }
 
     public void SetValue(string val)
@@ -78,10 +84,21 @@ public class Node
         isBlocked = true;
         value = "[ # ]"; // Marcar la casilla como bloqueada
     }
-    public bool IsBlocked()
+    public void Unblock()
     {
-        return isBlocked;
+        isBlocked = false; // Cambiar el estado de la celda a desbloqueada
+                           // Restaurar el valor original de la celda (por ejemplo, "[  ]")
+        value = "[  ]";
     }
 
-
+    public bool IsBlocked
+    {
+        get { return isBlocked; }
+        set { isBlocked = value; }
+    }
+    public bool IsVisited
+    {
+        get { return isVisited; }
+        set { isVisited = value; }
+    }
 }

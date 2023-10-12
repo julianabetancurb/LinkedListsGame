@@ -8,10 +8,12 @@ public class Player
 {
     private Node position;
     private string symbol;
+  
 
     public Player(Node startPosition, string symbol)
     {
         position = startPosition;
+        
         this.symbol = symbol;
     }
 
@@ -22,14 +24,41 @@ public class Player
 
     public void MoveUp()
     {
+        Console.WriteLine("llego");
         Node nextNode = position.GetUp();
-
-        if (nextNode != null && !nextNode.IsBlocked())
+        if (nextNode.GetValue().Contains("[ X ]") && nextNode.GetValue().Contains("[ Y ]"))
         {
+            position.SetValue("[  ]");
+            position = position.GetUp().GetUp();
+            position.SetValue("[ " + symbol + " ]");
+            if (symbol == "X")
+            {
+
+                LinkedMatrix.UpdatePlayerXPosition(position);
+            }
+            else if (symbol == "Y")
+            {
+                LinkedMatrix.UpdatePlayerYPosition(position);
+            }
+        }
+        if (nextNode != null && !nextNode.IsBlocked )
+        {
+            Console.WriteLine("llego");
             position.SetValue("[  ]"); 
             position = position.GetUp();
-            position.SetValue("[ " + symbol + " ]"); 
+            position.SetValue("[ " + symbol + " ]");
+
+            if (symbol == "X")
+            {
+                
+                LinkedMatrix.UpdatePlayerXPosition(position);
+            }
+            else if (symbol == "Y")
+            {
+                LinkedMatrix.UpdatePlayerYPosition(position);
+            }
         }
+        
         else
         {
             Console.WriteLine("No te puedes mover hacia arriba");
@@ -38,13 +67,22 @@ public class Player
     }
     public void MoveDown()
     {
-        Node nextNode = position.GetDown(); 
+        Node nextNode = position.GetDown();
 
-        if (nextNode != null && !nextNode.IsBlocked())
+        if (nextNode != null && !nextNode.IsBlocked && !nextNode.GetValue().Contains("[ X ]") && !nextNode.GetValue().Contains("[ Y ]"))
         {
             position.SetValue("[  ]"); 
             position = position.GetDown();
-            position.SetValue("[ " + symbol + " ]"); 
+            position.SetValue("[ " + symbol + " ]");
+            if (symbol == "X")
+            {
+                LinkedMatrix.UpdatePlayerXPosition(position);
+            }
+            else if (symbol == "Y")
+            {
+                LinkedMatrix.UpdatePlayerYPosition(position);
+            }
+
         }
         else
         {
@@ -53,25 +91,42 @@ public class Player
     }
     public void MoveLeft()
     {
-        Node nextNode = position.GetLeft(); 
+        Node nextNode = position.GetLeft();
 
-        if (nextNode != null && !nextNode.IsBlocked())
+        if (nextNode != null && !nextNode.IsBlocked && !nextNode.GetValue().Contains("[ X ]") && !nextNode.GetValue().Contains("[ Y ]"))
         {
             position.SetValue("[  ]");
             position = position.GetLeft(); 
-            position.SetValue("[ " + symbol + " ]"); 
+            position.SetValue("[ " + symbol + " ]");
+            if (symbol == "X")
+            {
+                LinkedMatrix.UpdatePlayerXPosition(position);
+            }
+            else if (symbol == "Y")
+            {
+                LinkedMatrix.UpdatePlayerYPosition(position);
+            }
         }
         else { Console.WriteLine("No puedes moverte hacia la izquierda"); }
     }
     public void MoveRight()
     {
-        Node nextNode = position.GetRight(); 
+        Node nextNode = position.GetRight();
 
-        if (nextNode != null && !nextNode.IsBlocked())
+        if (nextNode != null && !nextNode.IsBlocked && !nextNode.GetValue().Contains("[ X ]") && !nextNode.GetValue().Contains("[ Y ]"))
         {
             position.SetValue("[  ]"); 
             position = position.GetRight(); 
-            position.SetValue("[ " + symbol + " ]"); 
+            position.SetValue("[ " + symbol + " ]");
+
+            if (symbol == "X")
+            {
+                LinkedMatrix.UpdatePlayerXPosition(position);
+            }
+            else if (symbol == "Y")
+            {
+                LinkedMatrix.UpdatePlayerYPosition(position);
+            }
 
         }
         else { Console.WriteLine("No puedes moverte hacia la derecha"); }
@@ -80,19 +135,43 @@ public class Player
     private bool CanBlockNode(Node nodeToBlock)
     {
         
-        return !nodeToBlock.IsBlocked();
+        return !nodeToBlock.IsBlocked;
+    }
+    public void BlockNodes(Node nodeToBlock)
+    {
+
+        if (CanBlockNode(nodeToBlock))
+        {
+
+            nodeToBlock.Block();
+        }
+        else { Console.WriteLine("El nodo ya esta bloqueado"); }
     }
     public void BlockNode(Node nodeToBlock)
     {
-        
-        if (CanBlockNode(nodeToBlock))
+        if (nodeToBlock == null || nodeToBlock.IsBlocked)
         {
-           
-            nodeToBlock.Block();
+            Console.WriteLine("La casilla seleccionada ya está bloqueada o no es válida para bloquear.");
+            return;
+        }
+
+        // Marca la casilla temporalmente como bloqueada
+        nodeToBlock.Block();
+
+        // Verifica si todavía puedes ganar después de bloquear
+        if (!LinkedMatrix.BothPlayersHaveAvailablePaths())
+        {
+            // El bloqueo no es válido; desbloquea la casilla
+            nodeToBlock.Unblock();
+            Console.WriteLine("El bloqueo no es válido, ya que afecta la ruta para ganar.");
+        }
+        else
+        {
+            Console.WriteLine("Casilla bloqueada con éxito.");
         }
     }
 
-   
+
     public bool XHasWon()
     {
         // Para el Jugador X, verifica si ha llegado a la última fila
